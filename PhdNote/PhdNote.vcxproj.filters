@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="动态链接">
+      <UniqueIdentifier>{b1df4734-ee9a-4b80-af42-173751c2a629}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="转换">
+      <UniqueIdentifier>{5416e46f-07b3-49c8-9f4f-72fa10be58c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Ini">
+      <UniqueIdentifier>{1e43fa1a-2db0-447c-9bfa-49f9e417b450}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Regedit">
+      <UniqueIdentifier>{050dee46-9781-4440-be04-d5c92364b4c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Socket">
+      <UniqueIdentifier>{47cb329a-ae88-4c57-b694-0fc8666c67e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sql">
+      <UniqueIdentifier>{d214ae64-6027-4d27-a918-793eac0c803c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Xml">
+      <UniqueIdentifier>{8cb311d4-14e3-41da-b439-bf385729ee20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Excel">
+      <UniqueIdentifier>{7725f45b-a90f-42f5-9b63-98f0a5df7b18}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="PhdNote.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PhdConver.cpp">
+      <Filter>转换</Filter>
+    </ClCompile>
+    <ClCompile Include="excel9.cpp">
+      <Filter>Excel</Filter>
+    </ClCompile>
+    <ClCompile Include="PhdExcel.cpp">
+      <Filter>Excel</Filter>
+    </ClCompile>
+    <ClCompile Include="CTestIni.cpp">
+      <Filter>Ini</Filter>
+    </ClCompile>
+    <ClCompile Include="PhdIni.cpp">
+      <Filter>Ini</Filter>
+    </ClCompile>
+    <ClCompile Include="PhdRegedit.cpp">
+      <Filter>Regedit</Filter>
+    </ClCompile>
+    <ClCompile Include="PhdSocket.cpp">
+      <Filter>Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="CAdoLx.cpp">
+      <Filter>Sql</Filter>
+    </ClCompile>
+    <ClCompile Include="PhdXml.cpp">
+      <Filter>Xml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinystr.cpp">
+      <Filter>Xml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml.cpp">
+      <Filter>Xml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxmlerror.cpp">
+      <Filter>Xml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxmlparser.cpp">
+      <Filter>Xml</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PhdNote.def">
+      <Filter>源文件</Filter>
+    </None>
+    <None Include="res\PhdNote.rc2">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PhdNote.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PhdNoteDynamicLink.h">
+      <Filter>动态链接</Filter>
+    </ClInclude>
+    <ClInclude Include="PhdConver.h">
+      <Filter>转换</Filter>
+    </ClInclude>
+    <ClInclude Include="excel9.h">
+      <Filter>Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="PhdExcel.h">
+      <Filter>Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="CTestIni.h">
+      <Filter>Ini</Filter>
+    </ClInclude>
+    <ClInclude Include="PhdIni.h">
+      <Filter>Ini</Filter>
+    </ClInclude>
+    <ClInclude Include="PhdRegedit.h">
+      <Filter>Regedit</Filter>
+    </ClInclude>
+    <ClInclude Include="PhdSocket.h">
+      <Filter>Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="CAdoLx.h">
+      <Filter>Sql</Filter>
+    </ClInclude>
+    <ClInclude Include="PhdXml.h">
+      <Filter>Xml</Filter>
+    </ClInclude>
+    <ClInclude Include="tinystr.h">
+      <Filter>Xml</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml.h">
+      <Filter>Xml</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="PhdNote.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
