@@ -7,12 +7,19 @@
    >         Blog: https://blog.csdn.net/phd17621680432
  **********************************************/
 
-#include "excel9.h"
+
 #include <comdef.h>
 
  //LPDISPATCH 是一个指向接口的指针
  //_variant_t() 将字符串转为const VARIANT&
  //COleVariant() 将short或long型转为const VARIANT&
+
+class _ExApplication;
+class Workbooks;
+class _Workbook;
+class _ExSheets;
+class _Worksheet;
+class _ExRange;
 
 namespace Phd{
 
@@ -163,13 +170,13 @@ private:
 	bool IsNumber(LPCTSTR sz, bool bAcceptDouble);
 
 private:
-	_ExApplication m_app;		//整个excel应用程序
-	Workbooks m_books;			//excel应用程序中当前打开的所有workbook集合
+	std::shared_ptr<_ExApplication> m_apApp;		//整个excel应用程序
+	std::shared_ptr<Workbooks> m_apBooks;			//excel应用程序中当前打开的所有workbook集合
 
-	_Workbook m_book;			//一个工作簿
-	_ExSheets  m_sheets;		//指定或活动工作中簿中所有工作表的集合
-	_Worksheet m_sheet;			//一个工作表
-	_ExRange  m_range;			//某一单元格、某一行、某一列、某一选定区域（该对象代表当前页的所有单元格）
+	std::shared_ptr<_Workbook> m_apBook;			//一个工作簿
+	std::shared_ptr<_ExSheets>  m_apSheets;		//指定或活动工作中簿中所有工作表的集合
+	std::shared_ptr<_Worksheet> m_apSheet;			//一个工作表
+	std::shared_ptr<_ExRange>  m_apRange;			//某一单元格、某一行、某一列、某一选定区域（该对象代表当前页的所有单元格）
 
 	//Interior  m_interior;		//代表一个对象的内部	
 	//_ExFont m_font;			//包含对象的字体属性（字体名称、字号、颜色等）

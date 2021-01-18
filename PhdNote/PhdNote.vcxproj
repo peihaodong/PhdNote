@@ -94,10 +94,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_AFX_NO_DAO_SUPPORT;WIN32;_WINDOWS;_DEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <ModuleDefinitionFile>.\PhdNote.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -109,8 +111,8 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)$(Configuration)\PhdNote.dll" "$(SolutionDir)API_PhdNote\$(Configuration)\bin-$(Platform)\"
-xcopy /Y "$(SolutionDir)$(Configuration)\PhdNote.lib" "$(SolutionDir)API_PhdNote\$(Configuration)\lib-$(Platform)\"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -136,8 +138,8 @@ xcopy /Y "$(SolutionDir)$(Configuration)\PhdNote.lib" "$(SolutionDir)API_PhdNote
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)$(Platform)\$(Configuration)\PhdNote.dll" "$(SolutionDir)API_PhdNote\$(Configuration)\bin-$(Platform)\"
-xcopy /Y "$(SolutionDir)$(Platform)\$(Configuration)\PhdNote.lib" "$(SolutionDir)API_PhdNote\$(Configuration)\lib-$(Platform)\"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -167,8 +169,8 @@ xcopy /Y "$(SolutionDir)$(Platform)\$(Configuration)\PhdNote.lib" "$(SolutionDir
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)$(Configuration)\PhdNote.dll" "$(SolutionDir)API_PhdNote\$(Configuration)\bin-$(Platform)\"
-xcopy /Y "$(SolutionDir)$(Configuration)\PhdNote.lib" "$(SolutionDir)API_PhdNote\$(Configuration)\lib-$(Platform)\"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -198,8 +200,8 @@ xcopy /Y "$(SolutionDir)$(Configuration)\PhdNote.lib" "$(SolutionDir)API_PhdNote
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)$(Platform)\$(Configuration)\PhdNote.dll" "$(SolutionDir)API_PhdNote\$(Configuration)\bin-$(Platform)\"
-xcopy /Y "$(SolutionDir)$(Platform)\$(Configuration)\PhdNote.lib" "$(SolutionDir)API_PhdNote\$(Configuration)\lib-$(Platform)\"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

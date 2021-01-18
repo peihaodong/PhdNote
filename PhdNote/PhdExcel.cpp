@@ -1,17 +1,17 @@
 #include "pch.h"
 #include "PhdExcel.h"
+#include "excel9.h"
 
 namespace Phd{
 
 PhdExcel::PhdExcel()
-	:m_app(nullptr)
-	, m_books(nullptr)
-	, m_book(nullptr)
-	, m_sheets(nullptr)
-	, m_sheet(nullptr)
-	, m_range(nullptr)
+	:m_apApp(std::make_shared<_ExApplication>())
+	, m_apBooks(std::make_shared<Workbooks>())
+	, m_apBook(std::make_shared<_Workbook>())
+	, m_apSheets(std::make_shared<_ExSheets>())
+	, m_apSheet(std::make_shared<_Worksheet>())
+	, m_apRange(std::make_shared<_ExRange>())
 {
-
 }
 
 PhdExcel::~PhdExcel()
@@ -26,7 +26,7 @@ bool PhdExcel::CreateExcel(LPCTSTR szExcelPath)
 {
 	CoInitialize(NULL);
 
-	if (!m_app.CreateDispatch(_T("Excel.Application")))
+	if (!m_apApp->CreateDispatch(_T("Excel.Application")))
 	{
 		AfxMessageBox(_T("创建Excel失败!"));
 		exit(1);
@@ -35,13 +35,13 @@ bool PhdExcel::CreateExcel(LPCTSTR szExcelPath)
 
 	try
 	{
-		m_app.SetVisible(false);
+		m_apApp->SetVisible(false);
 		//将当前电脑上打开的所有excel工作簿绑定m_books
-		m_books.AttachDispatch(m_app.GetWorkbooks(), true);
+		m_apBooks->AttachDispatch(m_apApp->GetWorkbooks(), true);
 		//绑定新增的工作簿
-		m_book.AttachDispatch(m_books.Add(vtMissing));
+		m_apBook->AttachDispatch(m_apBooks->Add(vtMissing));
 		//绑定m_sheets
-		m_sheets.AttachDispatch(m_book.GetWorksheets(), true);
+		m_apSheets->AttachDispatch(m_apBook->GetWorksheets(), true);
 	}
 	catch (CException* e)
 	{
@@ -60,7 +60,7 @@ bool PhdExcel::CreateExcelByTemplate(LPCTSTR szTemplatePath, LPCTSTR szExcelPath
 {
 	CoInitialize(NULL);
 
-	if (!m_app.CreateDispatch(_T("Excel.Application")))
+	if (!m_apApp->CreateDispatch(_T("Excel.Application")))
 	{
 		AfxMessageBox(_T("创建Excel失败!"));
 		exit(1);
@@ -69,13 +69,13 @@ bool PhdExcel::CreateExcelByTemplate(LPCTSTR szTemplatePath, LPCTSTR szExcelPath
 
 	try
 	{
-		m_app.SetVisible(false);
+		m_apApp->SetVisible(false);
 		//将当前电脑上打开的所有excel工作簿绑定m_books
-		m_books.AttachDispatch(m_app.GetWorkbooks(), true);
+		m_apBooks->AttachDispatch(m_apApp->GetWorkbooks(), true);
 		//绑定新增的工作簿
-		m_book.AttachDispatch(m_books.Add(_variant_t(szTemplatePath)));
+		m_apBook->AttachDispatch(m_apBooks->Add(_variant_t(szTemplatePath)));
 		//绑定m_sheets
-		m_sheets.AttachDispatch(m_book.GetWorksheets(), true);
+		m_apSheets->AttachDispatch(m_apBook->GetWorksheets(), true);
 	}
 	catch (CException* e)
 	{
@@ -94,7 +94,7 @@ bool PhdExcel::Open(LPCTSTR szExcelPath)
 {
 	CoInitialize(NULL);
 
-	if (!m_app.CreateDispatch(_T("Excel.Application")))
+	if (!m_apApp->CreateDispatch(_T("Excel.Application")))
 	{
 		AfxMessageBox(_T("创建Excel失败!"));
 		exit(1);
@@ -103,16 +103,18 @@ bool PhdExcel::Open(LPCTSTR szExcelPath)
 
 	try
 	{
-		m_app.SetVisible(false);
+		m_apApp->SetVisible(false);
 		//将当前电脑上打开的所有excel工作簿绑定m_books
-		m_books.AttachDispatch(m_app.GetWorkbooks(), true);
+		m_apBooks->AttachDispatch(m_apApp->GetWorkbooks(), true);
 		//绑定指定的工作簿
-		m_book = m_books.Open(szExcelPath, vtMissing, vtMissing,
+		LPDISPATCH book = m_apBooks->Open(szExcelPath, vtMissing, vtMissing,
 			vtMissing, vtMissing, vtMissing, vtMissing,
 			vtMissing, vtMissing, vtMissing, vtMissing,
 			vtMissing, vtMissing);
+		_Workbook* pBook = new _Workbook(book);
+		m_apBook.reset(pBook);
 		//绑定m_sheets
-		m_sheets.AttachDispatch(m_book.GetWorksheets(), true);
+		m_apSheets->AttachDispatch(m_apBook->GetWorksheets(), true);
 	}
 	catch (CException* e)
 	{
@@ -150,24 +152,25 @@ bool PhdExcel::OpenTheAlreadyOpenExcel(LPCTSTR szExcelPath)
 	{//有excel软件在运行
 		try
 		{
-			hr = pUnknown->QueryInterface(IID_IDispatch, (LPVOID *)&m_app);
+			_ExApplication* pApp = nullptr;
+			hr = pUnknown->QueryInterface(IID_IDispatch, (LPVOID *)pApp);
 			if (FAILED(hr))
 				throw(_T("没有取得IDispatchPtr"));
+			m_apApp.reset(pApp);
 			pUnknown->Release();
 			pUnknown = NULL;
 
-			lpDisp = m_app.GetWorkbooks();
-			m_books.AttachDispatch(lpDisp, TRUE);
-			int nLen = m_books.GetCount();
+			lpDisp = m_apApp->GetWorkbooks();
+			m_apBooks->AttachDispatch(lpDisp, TRUE);
+			int nLen = m_apBooks->GetCount();
 			CString strName;
 			bool bIsFind = false;
 			for (int i = 1; i <= nLen; i++)
 			{
-				if (m_book)
-					m_book.ReleaseDispatch();
-				lpDisp = m_books.GetItem(_variant_t(i));
-				m_book.AttachDispatch(lpDisp, TRUE);
-				strName = m_book.GetFullName();
+				m_apBook->ReleaseDispatch();
+				lpDisp = m_apBooks->GetItem(_variant_t(i));
+				m_apBook->AttachDispatch(lpDisp, TRUE);
+				strName = m_apBook->GetFullName();
 
 				if (_tcscmp(strName, szExcelPath) == 0)
 				{
@@ -177,15 +180,15 @@ bool PhdExcel::OpenTheAlreadyOpenExcel(LPCTSTR szExcelPath)
 			}
 			if (!bIsFind)
 			{
-				m_book.ReleaseDispatch();
-				m_books.ReleaseDispatch();
-				m_app.ReleaseDispatch();
+				m_apBook->ReleaseDispatch();
+				m_apBooks->ReleaseDispatch();
+				m_apApp->ReleaseDispatch();
 				CoUninitialize();//关闭当前线程上的com库，卸载该线程加载的所有dll,释放该线程维护的所有其他资源，并强制关闭该线程上的所有RPC连接。
 				return false;//没找到
 			}
 
 			//绑定m_sheets
-			m_sheets.AttachDispatch(m_book.GetWorksheets(), true);
+			m_apSheets->AttachDispatch(m_apBook->GetWorksheets(), true);
 		}
 		catch (CException* e)
 		{
@@ -291,8 +294,8 @@ bool PhdExcel::OpenActiveSheet()
 {
 	try
 	{
-		m_sheet.AttachDispatch(m_book.GetActiveSheet(), true);
-		m_range.AttachDispatch(m_sheet.GetCells(), true);
+		m_apSheet->AttachDispatch(m_apBook->GetActiveSheet(), true);
+		m_apRange->AttachDispatch(m_apSheet->GetCells(), true);
 	}
 	catch (CException* e)
 	{
@@ -308,12 +311,10 @@ bool PhdExcel::OpenSheet(LPCTSTR szSheetName)
 {
 	try
 	{
-		if (m_sheet)
-			m_sheet.ReleaseDispatch();
-		m_sheet.AttachDispatch(m_sheets.GetItem(_variant_t(szSheetName)), true);
-		if (m_range)
-			m_range.ReleaseDispatch();
-		m_range.AttachDispatch(m_sheet.GetCells(), true);
+		m_apSheet->ReleaseDispatch();
+		m_apSheet->AttachDispatch(m_apSheets->GetItem(_variant_t(szSheetName)), true);
+		m_apRange->ReleaseDispatch();
+		m_apRange->AttachDispatch(m_apSheet->GetCells(), true);
 	}
 	catch (CException* e)
 	{
@@ -329,12 +330,10 @@ bool PhdExcel::OpenSheet(int nIndex)
 {
 	try
 	{
-		if (m_sheet)
-			m_sheet.ReleaseDispatch();
-		m_sheet.AttachDispatch(m_sheets.GetItem(COleVariant((long)nIndex)), true);
-		if (m_range)
-			m_range.ReleaseDispatch();
-		m_range.AttachDispatch(m_sheet.GetCells(), true);
+		m_apSheet->ReleaseDispatch();
+		m_apSheet->AttachDispatch(m_apSheets->GetItem(COleVariant((long)nIndex)), true);
+		m_apRange->ReleaseDispatch();
+		m_apRange->AttachDispatch(m_apSheet->GetCells(), true);
 	}
 	catch (CException* e)
 	{
@@ -351,11 +350,11 @@ bool PhdExcel::Save()
 	try
 	{
 		//设置不提示是否覆盖警报
-		m_app.SetAlertBeforeOverwriting(FALSE);
+		m_apApp->SetAlertBeforeOverwriting(FALSE);
 		//设置不显示警报
-		m_app.SetDisplayAlerts(FALSE);
+		m_apApp->SetDisplayAlerts(FALSE);
 		//保存工作簿
-		m_book.Save();
+		m_apBook->Save();
 	}
 	catch (CException* e)
 	{
@@ -371,11 +370,11 @@ bool PhdExcel::SaveAs(LPCTSTR szExcelPath)
 	try
 	{
 		//设置不提示是否覆盖警报
-		m_app.SetAlertBeforeOverwriting(FALSE);
+		m_apApp->SetAlertBeforeOverwriting(FALSE);
 		//设置不显示警报
-		m_app.SetDisplayAlerts(FALSE);
+		m_apApp->SetDisplayAlerts(FALSE);
 		//另存为工作簿
-		m_book.SaveAs(_variant_t(szExcelPath), vtMissing, vtMissing, vtMissing, vtMissing, vtMissing
+		m_apBook->SaveAs(_variant_t(szExcelPath), vtMissing, vtMissing, vtMissing, vtMissing, vtMissing
 			, 0, vtMissing, vtMissing, vtMissing, vtMissing);
 	}
 	catch (CException* e)
@@ -391,18 +390,12 @@ bool PhdExcel::Clear()
 {
 	try
 	{
-		if (m_range)
-			m_range.ReleaseDispatch();
-		if (m_sheet)
-			m_sheet.ReleaseDispatch();
-		if (m_sheets)
-			m_sheets.ReleaseDispatch();
-		if (m_book)
-			m_book.ReleaseDispatch();
-		if (m_books)
-			m_books.ReleaseDispatch();
-		if (m_app)
-			m_app.ReleaseDispatch();
+		m_apRange->ReleaseDispatch();
+		m_apSheet->ReleaseDispatch();
+		m_apSheets->ReleaseDispatch();
+		m_apBook->ReleaseDispatch();
+		m_apBooks->ReleaseDispatch();
+		m_apApp->ReleaseDispatch();
 
 		CoUninitialize();
 	}
@@ -417,31 +410,22 @@ bool PhdExcel::Clear()
 
 bool PhdExcel::Quit()
 {
-	if (!m_app)
-		return false;
-
 	try
 	{
-		m_app.SetVisible(FALSE);
-		m_app.SetDisplayAlerts(FALSE);
+		m_apApp->SetVisible(FALSE);
+		m_apApp->SetDisplayAlerts(FALSE);
 
-		if (m_books)
-			m_books.Close();	//关闭工作簿集合
+		if (m_apBooks)
+			m_apBooks->Close();	//关闭工作簿集合
 
-		m_app.Quit();		//退出excel应用程序
+		m_apApp->Quit();		//退出excel应用程序
 
-		if (m_range)
-			m_range.ReleaseDispatch();
-		if (m_sheet)
-			m_sheet.ReleaseDispatch();
-		if (m_sheets)
-			m_sheets.ReleaseDispatch();
-		if (m_book)
-			m_book.ReleaseDispatch();
-		if (m_books)
-			m_books.ReleaseDispatch();
-		if (m_app)
-			m_app.ReleaseDispatch();
+		m_apRange->ReleaseDispatch();
+		m_apSheet->ReleaseDispatch();
+		m_apSheets->ReleaseDispatch();
+		m_apBook->ReleaseDispatch();
+		m_apBooks->ReleaseDispatch();
+		m_apApp->ReleaseDispatch();
 
 		CoUninitialize();
 	}
@@ -459,7 +443,7 @@ int PhdExcel::GetSheetCount()
 	long lCount = 0;
 	try
 	{
-		lCount = m_sheets.GetCount();
+		lCount = m_apSheets->GetCount();
 	}
 	catch (CException* e)
 	{
@@ -476,7 +460,7 @@ CString PhdExcel::GetSheetNameByIndex(int nIndex)
 	try
 	{
 		_Worksheet sheetTemp;
-		sheetTemp.AttachDispatch(m_sheets.GetItem(COleVariant((long)(nIndex + 1))), true);
+		sheetTemp.AttachDispatch(m_apSheets->GetItem(COleVariant((long)(nIndex + 1))), true);
 		strSheetName = sheetTemp.GetName();
 		sheetTemp.ReleaseDispatch();
 	}
@@ -517,7 +501,7 @@ bool PhdExcel::ModifyCurSheetName(LPCTSTR szNewSheetName)
 {
 	try
 	{
-		m_sheet.SetName(szNewSheetName);
+		m_apSheet->SetName(szNewSheetName);
 	}
 	catch (CException* e)
 	{
@@ -533,7 +517,7 @@ bool PhdExcel::ModifySheetName(int nSheetIndex, LPCTSTR szNewSheetName)
 	try
 	{
 		_Worksheet sheetTemp;
-		sheetTemp.AttachDispatch(m_sheets.GetItem(COleVariant((long)(nSheetIndex + 1))), true);
+		sheetTemp.AttachDispatch(m_apSheets->GetItem(COleVariant((long)(nSheetIndex + 1))), true);
 		sheetTemp.SetName(szNewSheetName);
 		sheetTemp.ReleaseDispatch();
 	}
@@ -548,7 +532,7 @@ bool PhdExcel::ModifySheetName(int nSheetIndex, LPCTSTR szNewSheetName)
 
 int PhdExcel::GetCurSheetIndex()
 {
-	CString strSheetName = m_sheet.GetName();
+	CString strSheetName = m_apSheet->GetName();
 	int nIndex = GetSheetIndexByName(strSheetName);
 	return nIndex;
 }
@@ -558,7 +542,7 @@ bool PhdExcel::AddSheet(LPCTSTR szSheetName)
 	try
 	{
 		_Worksheet sheetTemp;
-		sheetTemp.AttachDispatch(m_sheets.Add(vtMissing, vtMissing, _variant_t((long)1), vtMissing), true);
+		sheetTemp.AttachDispatch(m_apSheets->Add(vtMissing, vtMissing, _variant_t((long)1), vtMissing), true);
 		sheetTemp.SetName(szSheetName);
 		sheetTemp.ReleaseDispatch();
 	}
@@ -583,18 +567,17 @@ bool PhdExcel::DeleteSheet(int nSheetIndex)
 		int nCurIndex = GetCurSheetIndex();
 		if (nCurIndex == nSheetIndex)
 		{
-			m_sheet.Delete();
-			m_sheet.ReleaseDispatch();
+			m_apSheet->Delete();
+			m_apSheet->ReleaseDispatch();
 			//m_sheet绑定第一个工作表
-			m_sheet.AttachDispatch(m_sheets.GetItem(COleVariant((long)(1))), true);
-			if (m_range)
-				m_range.ReleaseDispatch();
-			m_range.AttachDispatch(m_sheet.GetCells(), true);
+			m_apSheet->AttachDispatch(m_apSheets->GetItem(COleVariant((long)(1))), true);
+			m_apRange->ReleaseDispatch();
+			m_apRange->AttachDispatch(m_apSheet->GetCells(), true);
 		}
 		else
 		{
 			_Worksheet sheetTemp;
-			sheetTemp.AttachDispatch(m_sheets.GetItem(COleVariant((long)(nSheetIndex + 1))), true);
+			sheetTemp.AttachDispatch(m_apSheets->GetItem(COleVariant((long)(nSheetIndex + 1))), true);
 			sheetTemp.Delete();
 			sheetTemp.ReleaseDispatch();
 		}
@@ -621,18 +604,17 @@ bool PhdExcel::DeleteSheet(LPCTSTR szSheetName)
 		int nSheetIndex = GetSheetIndexByName(szSheetName);
 		if (nCurIndex == nSheetIndex)
 		{
-			m_sheet.Delete();
-			m_sheet.ReleaseDispatch();
+			m_apSheet->Delete();
+			m_apSheet->ReleaseDispatch();
 			//m_sheet绑定第一个工作表
-			m_sheet.AttachDispatch(m_sheets.GetItem(COleVariant((long)(1))), true);
-			if (m_range)
-				m_range.ReleaseDispatch();
-			m_range.AttachDispatch(m_sheet.GetCells(), true);
+			m_apSheet->AttachDispatch(m_apSheets->GetItem(COleVariant((long)(1))), true);
+			m_apRange->ReleaseDispatch();
+			m_apRange->AttachDispatch(m_apSheet->GetCells(), true);
 		}
 		else
 		{
 			_Worksheet sheetTemp;
-			sheetTemp.AttachDispatch(m_sheets.GetItem(COleVariant((long)(nSheetIndex + 1))), true);
+			sheetTemp.AttachDispatch(m_apSheets->GetItem(COleVariant((long)(nSheetIndex + 1))), true);
 			sheetTemp.Delete();
 			sheetTemp.ReleaseDispatch();
 		}
@@ -650,13 +632,11 @@ bool PhdExcel::SwitchSheet(int nSheetIndex)
 {
 	try
 	{
-		if (m_sheet)
-			m_sheet.ReleaseDispatch();
-		m_sheet.AttachDispatch(m_sheets.GetItem(COleVariant((long)(nSheetIndex + 1))), true);
+		m_apSheet->ReleaseDispatch();
+		m_apSheet->AttachDispatch(m_apSheets->GetItem(COleVariant((long)(nSheetIndex + 1))), true);
 		//
-		if (m_range)
-			m_range.ReleaseDispatch();
-		m_range.AttachDispatch(m_sheet.GetCells(), true);
+		m_apRange->ReleaseDispatch();
+		m_apRange->AttachDispatch(m_apSheet->GetCells(), true);
 	}
 	catch (CException* e)
 	{
@@ -671,12 +651,10 @@ bool PhdExcel::SwitchSheet(LPCTSTR szSheetName)
 {
 	try
 	{
-		if (m_sheet)
-			m_sheet.ReleaseDispatch();
-		m_sheet.AttachDispatch(m_sheets.GetItem(_variant_t(szSheetName)), true);
-		if (m_range)
-			m_range.ReleaseDispatch();
-		m_range.AttachDispatch(m_sheet.GetCells(), true);
+		m_apSheet->ReleaseDispatch();
+		m_apSheet->AttachDispatch(m_apSheets->GetItem(_variant_t(szSheetName)), true);
+		m_apRange->ReleaseDispatch();
+		m_apRange->AttachDispatch(m_apSheet->GetCells(), true);
 	}
 	catch (CException* e)
 	{
@@ -691,7 +669,7 @@ bool PhdExcel::SetCurSheetActivate()
 {
 	try
 	{
-		m_sheet.Activate();
+		m_apSheet->Activate();
 	}
 	catch (CException* e)
 	{
@@ -708,7 +686,7 @@ int PhdExcel::GetUsedRowCount()
 	try
 	{
 		_ExRange rangeUsed;
-		rangeUsed.AttachDispatch(m_sheet.GetUsedRange(), true);
+		rangeUsed.AttachDispatch(m_apSheet->GetUsedRange(), true);
 		_ExRange rangeRow;
 		rangeRow.AttachDispatch(rangeUsed.GetRows());
 		nRowNum = rangeRow.GetCount();
@@ -730,7 +708,7 @@ int PhdExcel::GetUsedColCount()
 	try
 	{
 		_ExRange rangeUsed;
-		rangeUsed.AttachDispatch(m_sheet.GetUsedRange(), true);
+		rangeUsed.AttachDispatch(m_apSheet->GetUsedRange(), true);
 		_ExRange rangeCol;
 		rangeCol.AttachDispatch(rangeUsed.GetColumns());
 		nColNum = rangeCol.GetCount();
@@ -751,7 +729,7 @@ bool PhdExcel::GetPrintArea(int& nRow1, int& nCol1, int& nRow2, int& nCol2)
 	try
 	{
 		PageSetup pagesetupTemp;
-		pagesetupTemp.AttachDispatch(m_sheet.GetPageSetup());
+		pagesetupTemp.AttachDispatch(m_apSheet->GetPageSetup());
 		CString strPrintArea = pagesetupTemp.GetPrintArea();
 		pagesetupTemp.ReleaseDispatch();
 		//
@@ -802,7 +780,7 @@ double PhdExcel::GetRowHeight(int nRow, int nCol)
 	{
 		CString strCell = GetCellStr(nRow, nCol);
 		_ExRange rangeTemp;
-		rangeTemp.AttachDispatch(m_sheet.GetRange(_variant_t(strCell), _variant_t(strCell)));
+		rangeTemp.AttachDispatch(m_apSheet->GetRange(_variant_t(strCell), _variant_t(strCell)));
 		dHeight = rangeTemp.GetRowHeight().dblVal;
 		rangeTemp.ReleaseDispatch();
 	}
@@ -822,7 +800,7 @@ double PhdExcel::GetColWidth(int nRow, int nCol)
 	{
 		CString strCell = GetCellStr(nRow, nCol);
 		_ExRange rangeTemp;
-		rangeTemp.AttachDispatch(m_sheet.GetRange(_variant_t(strCell), _variant_t(strCell)));
+		rangeTemp.AttachDispatch(m_apSheet->GetRange(_variant_t(strCell), _variant_t(strCell)));
 		dWidth = rangeTemp.GetColumnWidth().dblVal;
 		rangeTemp.ReleaseDispatch();
 	}
@@ -841,7 +819,7 @@ bool PhdExcel::SetRowHeight(int nRow, double dHeight)
 	{
 		CString strCell = GetCellStr(nRow, 1);
 		_ExRange rangeTemp;
-		rangeTemp.AttachDispatch(m_sheet.GetRange(_variant_t(strCell), _variant_t(strCell)));
+		rangeTemp.AttachDispatch(m_apSheet->GetRange(_variant_t(strCell), _variant_t(strCell)));
 		rangeTemp.SetRowHeight((_variant_t)dHeight);
 		rangeTemp.ReleaseDispatch();
 	}
@@ -860,7 +838,7 @@ bool PhdExcel::SetColWidth(int nCol, double dWidth)
 	{
 		CString strCell = GetCellStr(1, nCol);
 		_ExRange rangeTemp;
-		rangeTemp.AttachDispatch(m_sheet.GetRange(_variant_t(strCell), _variant_t(strCell)));
+		rangeTemp.AttachDispatch(m_apSheet->GetRange(_variant_t(strCell), _variant_t(strCell)));
 		rangeTemp.SetColumnWidth((_variant_t)dWidth);
 		rangeTemp.ReleaseDispatch();
 	}
@@ -877,7 +855,7 @@ bool PhdExcel::SetAllRowHeight(double dHeight)
 {
 	try
 	{
-		m_range.SetRowHeight((_variant_t)dHeight);
+		m_apRange->SetRowHeight((_variant_t)dHeight);
 	}
 	catch (CException* e)
 	{
@@ -892,7 +870,7 @@ bool PhdExcel::SetAllColWidth(double dWidth)
 {
 	try
 	{
-		m_range.SetColumnWidth((_variant_t)dWidth);
+		m_apRange->SetColumnWidth((_variant_t)dWidth);
 	}
 	catch (CException* e)
 	{
@@ -911,7 +889,7 @@ CString PhdExcel::GetCellText(int nRow, int nCol)
 
 	try
 	{
-		VARIANT lpDisp = m_range.GetItem(_variant_t(nRow), _variant_t(nCol));
+		VARIANT lpDisp = m_apRange->GetItem(_variant_t(nRow), _variant_t(nCol));
 		_ExRange rangeTemp;
 		rangeTemp.AttachDispatch(lpDisp.pdispVal);
 		_variant_t vtVal = rangeTemp.GetValue2();
@@ -962,7 +940,7 @@ bool PhdExcel::SetCellText(int nRow, int nCol, LPCTSTR szText)
 {
 	try
 	{
-		m_range.SetItem(_variant_t(nRow), _variant_t(nCol), _variant_t(szText));
+		m_apRange->SetItem(_variant_t(nRow), _variant_t(nCol), _variant_t(szText));
 	}
 	catch (CException* e)
 	{
@@ -977,7 +955,7 @@ bool PhdExcel::ClearContents()
 {
 	try
 	{
-		m_range.ClearContents();
+		m_apRange->ClearContents();
 	}
 	catch (CException* e)
 	{
@@ -992,7 +970,7 @@ bool PhdExcel::SetCellActivate(int nRow, int nCol)
 {
 	try
 	{
-		VARIANT lpDisp = m_range.GetItem(_variant_t(nRow), _variant_t(nCol));
+		VARIANT lpDisp = m_apRange->GetItem(_variant_t(nRow), _variant_t(nCol));
 		_ExRange rangeTemp;
 		rangeTemp.AttachDispatch(lpDisp.pdispVal);
 		lpDisp = rangeTemp.Select();
@@ -1016,7 +994,7 @@ bool PhdExcel::MergeCell(int nCellRow1, int nCellCol1, int nCellRow2,
 		CString strCell1 = GetCellStr(nCellRow1, nCellCol1);
 		CString strCell2 = GetCellStr(nCellRow2, nCellCol2);
 		_ExRange rangeTemp;
-		rangeTemp.AttachDispatch(m_sheet.GetRange(_variant_t(strCell1),
+		rangeTemp.AttachDispatch(m_apSheet->GetRange(_variant_t(strCell1),
 			_variant_t(strCell2)));
 		rangeTemp.Merge(_variant_t((long)0));
 		if (bCenterAlign)
@@ -1038,7 +1016,7 @@ bool PhdExcel::SetAllCellCenterAlign()
 {
 	try
 	{
-		m_range.SetHorizontalAlignment(_variant_t((long)-4108));
+		m_apRange->SetHorizontalAlignment(_variant_t((long)-4108));
 	}
 	catch (CException* e)
 	{
@@ -1053,7 +1031,7 @@ bool PhdExcel::SetAutoWrapText(int nRow, int nCol, bool bWrapText)
 {
 	try
 	{
-		VARIANT lpDisp = m_range.GetItem(_variant_t(nRow), _variant_t(nCol));
+		VARIANT lpDisp = m_apRange->GetItem(_variant_t(nRow), _variant_t(nCol));
 		_ExRange rangeTemp;
 		rangeTemp.AttachDispatch(lpDisp.pdispVal);
 		rangeTemp.SetWrapText((_variant_t)(short)bWrapText);
@@ -1074,7 +1052,7 @@ bool PhdExcel::SetFrame(int nCellRow1, int nCellCol1, int nCellRow2, int nCellCo
 	{
 		CString strCell1 = GetCellStr(nCellRow1, nCellCol1);
 		CString strCell2 = GetCellStr(nCellRow2, nCellCol2);
-		_ExRange rangeTemp = m_sheet.GetRange(_variant_t(strCell1), _variant_t(strCell2));
+		_ExRange rangeTemp = m_apSheet->GetRange(_variant_t(strCell1), _variant_t(strCell2));
 		Borders borders;
 		borders.AttachDispatch(rangeTemp.GetBorders());
 		if (bOuterFrame)
@@ -1137,7 +1115,7 @@ bool PhdExcel::SetFontSize(int nRow, int nCol, int nSize)
 {
 	try
 	{
-		VARIANT lpDisp = m_range.GetItem(_variant_t(nRow), _variant_t(nCol));
+		VARIANT lpDisp = m_apRange->GetItem(_variant_t(nRow), _variant_t(nCol));
 		_ExRange rangeTemp;
 		rangeTemp.AttachDispatch(lpDisp.pdispVal);
 		_ExFont fontTemp;
@@ -1159,7 +1137,7 @@ bool PhdExcel::SetBoldFont(int nRow, int nCol, bool bBold)
 {
 	try
 	{
-		VARIANT lpDisp = m_range.GetItem(_variant_t(nRow), _variant_t(nCol));
+		VARIANT lpDisp = m_apRange->GetItem(_variant_t(nRow), _variant_t(nCol));
 		_ExRange rangeTemp;
 		rangeTemp.AttachDispatch(lpDisp.pdispVal);
 		_ExFont fontTemp;
@@ -1181,7 +1159,7 @@ bool PhdExcel::SetFontType(int nRow, int nCol, LPCTSTR szTextType)
 {
 	try
 	{
-		VARIANT lpDisp = m_range.GetItem(_variant_t(nRow), _variant_t(nCol));
+		VARIANT lpDisp = m_apRange->GetItem(_variant_t(nRow), _variant_t(nCol));
 		_ExRange rangeTemp;
 		rangeTemp.AttachDispatch(lpDisp.pdispVal);
 		_ExFont fontTemp;
@@ -1204,7 +1182,7 @@ bool PhdExcel::SetCellTextColor(int nRow, int nCol, int nColorIndex)
 	try
 	{
 		CString strCell = GetCellStr(nRow, nCol);
-		_ExRange rangeTemp = m_sheet.GetRange(_variant_t(strCell), _variant_t(strCell));
+		_ExRange rangeTemp = m_apSheet->GetRange(_variant_t(strCell), _variant_t(strCell));
 		_ExFont fontTemp;
 		fontTemp.AttachDispatch(rangeTemp.GetFont());
 		fontTemp.SetColorIndex(_variant_t(nColorIndex));
@@ -1225,7 +1203,7 @@ bool PhdExcel::SetCellBackgroundColor(int nRow, int nCol, int nColorIndex)
 	try
 	{
 		CString strCell = GetCellStr(nRow, nCol);
-		_ExRange rangeTemp = m_sheet.GetRange(_variant_t(strCell), _variant_t(strCell));
+		_ExRange rangeTemp = m_apSheet->GetRange(_variant_t(strCell), _variant_t(strCell));
 		Interior interTemp;
 		interTemp.AttachDispatch(rangeTemp.GetInterior());
 		interTemp.SetColorIndex(_variant_t(nColorIndex));
@@ -1245,7 +1223,7 @@ bool PhdExcel::InsertRow(int nRow)
 {
 	try
 	{
-		VARIANT lpDisp = m_range.GetItem(_variant_t(nRow), _variant_t(1));
+		VARIANT lpDisp = m_apRange->GetItem(_variant_t(nRow), _variant_t(1));
 		_ExRange copyFrom, copyTo;
 		copyTo.AttachDispatch(lpDisp.pdispVal);
 		copyFrom.AttachDispatch(copyTo.GetEntireRow());
@@ -1267,7 +1245,7 @@ bool PhdExcel::InsertCol(int nCol)
 {
 	try
 	{
-		VARIANT lpDisp = m_range.GetItem(_variant_t(1), _variant_t(nCol));
+		VARIANT lpDisp = m_apRange->GetItem(_variant_t(1), _variant_t(nCol));
 		_ExRange copyFrom, copyTo;
 		copyTo.AttachDispatch(lpDisp.pdispVal);
 		copyFrom.AttachDispatch(copyTo.GetEntireColumn());
@@ -1289,7 +1267,7 @@ bool PhdExcel::DeleteRow(int nRow)
 {
 	try
 	{
-		VARIANT lpDisp = m_range.GetItem(_variant_t(nRow), _variant_t(1));
+		VARIANT lpDisp = m_apRange->GetItem(_variant_t(nRow), _variant_t(1));
 		_ExRange copyFrom, copyTo;
 		copyTo.AttachDispatch(lpDisp.pdispVal);
 		copyFrom.AttachDispatch(copyTo.GetEntireRow());
@@ -1311,7 +1289,7 @@ bool PhdExcel::DeleteCol(int nCol)
 {
 	try
 	{
-		VARIANT lpDisp = m_range.GetItem(_variant_t(1), _variant_t(nCol));
+		VARIANT lpDisp = m_apRange->GetItem(_variant_t(1), _variant_t(nCol));
 		_ExRange copyFrom, copyTo;
 		copyTo.AttachDispatch(lpDisp.pdispVal);
 		copyFrom.AttachDispatch(copyTo.GetEntireColumn());
@@ -1416,9 +1394,9 @@ bool PhdExcel::ShowExcel()
 {
 	try
 	{
-		m_app.SetVisible(true);
-		m_app.SetWindowState(SW_SHOWNORMAL);
-		::BringWindowToTop(HWND(m_app.GetHwnd()));//设置窗口顶层显示
+		m_apApp->SetVisible(true);
+		m_apApp->SetWindowState(SW_SHOWNORMAL);
+		::BringWindowToTop(HWND(m_apApp->GetHwnd()));//设置窗口顶层显示
 	}
 	catch (CException* e)
 	{

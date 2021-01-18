@@ -17,19 +17,31 @@ if errorlevel 1 goto error
 
 
 rem 拷贝头文件
-call :FileCopy CAdoLx
-call :FileCopy PhdIni
-call :FileCopy PhdExcel
-call :FileCopy PhdSocket
-call :FileCopy PhdRegedit
-call :FileCopy PhdXml
-call :FileCopy PhdConver
+call :IncFileCopy PhdNoteDynamicLink
+
+call :IncFileCopy CAdoLx
+call :IncFileCopy PhdSocket
+call :IncFileCopy PhdRegedit
+call :IncFileCopy PhdExcel
+call :IncFileCopy PhdIni
+call :IncFileCopy PhdXml
+call :IncFileCopy PhdConver
+
+rem 拷贝dll文件和lib文件
+xcopy /y ..\Debug\PhdNote.dll ..\API_PhdNote\Debug\bin-Win32\
+xcopy /y ..\Debug\PhdNote.lib ..\API_PhdNote\Debug\lib-Win32\
+xcopy /y ..\Release\PhdNote.dll ..\API_PhdNote\Release\bin-Win32\
+xcopy /y ..\Release\PhdNote.lib ..\API_PhdNote\Release\lib-Win32\
+xcopy /y ..\x64\Debug\PhdNote.dll ..\API_PhdNote\Debug\bin-x64\
+xcopy /y ..\x64\Debug\PhdNote.lib ..\API_PhdNote\Debug\lib-x64\
+xcopy /y ..\x64\Release\PhdNote.dll ..\API_PhdNote\Release\bin-x64\
+xcopy /y ..\x64\Release\PhdNote.lib ..\API_PhdNote\Release\lib-x64\
 
 :error
 pause
 
 rem 头文件拷贝函数
-:FileCopy
+:IncFileCopy
 copy /y ..\PhdNote\%1.h ..\API_PhdNote\Debug\include\%1.h
 copy /y ..\PhdNote\%1.h ..\API_PhdNote\Release\include\%1.h
 goto :eof

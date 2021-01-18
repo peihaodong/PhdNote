@@ -1,9 +1,11 @@
 rem 拷贝.h文件
+call :FileCopy PhdNoteDynamicLink
+
 call :FileCopy CAdoLx
-call :FileCopy PhdIni
-call :FileCopy PhdExcel
 call :FileCopy PhdSocket
 call :FileCopy PhdRegedit
+call :FileCopy PhdExcel
+call :FileCopy PhdIni
 call :FileCopy PhdXml
 call :FileCopy PhdConver
 
