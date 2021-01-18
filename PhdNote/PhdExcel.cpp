@@ -113,6 +113,10 @@ bool PhdExcel::Open(LPCTSTR szExcelPath)
 			vtMissing, vtMissing);
 		_Workbook* pBook = new _Workbook(book);
 		m_apBook.reset(pBook);
+// 		m_book = m_apBooks->Open(szExcelPath, vtMissing, vtMissing,
+// 			vtMissing, vtMissing, vtMissing, vtMissing,
+// 			vtMissing, vtMissing, vtMissing, vtMissing,
+// 			vtMissing, vtMissing);
 		//绑定m_sheets
 		m_apSheets->AttachDispatch(m_apBook->GetWorksheets(), true);
 	}
@@ -157,6 +161,9 @@ bool PhdExcel::OpenTheAlreadyOpenExcel(LPCTSTR szExcelPath)
 			if (FAILED(hr))
 				throw(_T("没有取得IDispatchPtr"));
 			m_apApp.reset(pApp);
+			//hr = pUnknown->QueryInterface(IID_IDispatch, (LPVOID *)&m_app);
+			if (FAILED(hr))
+				throw(_T("没有取得IDispatchPtr"));
 			pUnknown->Release();
 			pUnknown = NULL;
 
@@ -415,9 +422,7 @@ bool PhdExcel::Quit()
 		m_apApp->SetVisible(FALSE);
 		m_apApp->SetDisplayAlerts(FALSE);
 
-		if (m_apBooks)
-			m_apBooks->Close();	//关闭工作簿集合
-
+		m_apBooks->Close();	//关闭工作簿集合
 		m_apApp->Quit();		//退出excel应用程序
 
 		m_apRange->ReleaseDispatch();
