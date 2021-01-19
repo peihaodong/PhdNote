@@ -1940,8 +1940,8 @@ void C2W(const char* pchr, CString& str)
 {
 	if (!pchr)
 		return;
-	std::size_t charLen = strlen(pchr);
-	std::size_t len = MultiByteToWideChar(CP_ACP, 0, pchr, charLen, NULL, 0);
+	int charLen = strlen(pchr);
+	int len = MultiByteToWideChar(CP_ACP, 0, pchr, charLen, NULL, 0);
 	TCHAR *buf = new TCHAR[len + 1];
 	MultiByteToWideChar(CP_ACP, 0, pchr, charLen, buf, len);
 	buf[len] = '\0';
@@ -1957,8 +1957,8 @@ void C2W(const char* pchr, wchar_t*& chr_t)
 {
 	if (!pchr)
 		return;
-	std::size_t charLen = strlen(pchr);
-	std::size_t len = MultiByteToWideChar(CP_ACP, 0, pchr, charLen, NULL, 0);
+	int charLen = strlen(pchr);
+	int len = MultiByteToWideChar(CP_ACP, 0, pchr, charLen, NULL, 0);
 	chr_t = new wchar_t[len + 1];
 	MultiByteToWideChar(CP_ACP, 0, pchr, charLen, chr_t, len);
 	chr_t[len] = '\0';

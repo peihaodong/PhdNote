@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "CTestIni.h"
+#include "PhdIni.h"
 
 #define SECTION_CL						_T("³ÝÂÖ")
 #define KEY_JD							_T("¾«¶È")
@@ -15,15 +16,16 @@ CTestIni& CTestIni::GetInstance()
 
 CString CTestIni::GetClJd() const
 {
-	return m_ini.GetValue(SECTION_CL, KEY_JD, _T("0.01"));
+	return m_apIni->GetValue(SECTION_CL, KEY_JD, _T("0.01"));
 }
 
 bool CTestIni::SetClJd(LPCTSTR szValue) const
 {
-	return m_ini.SetValue(SECTION_CL, KEY_JD, szValue);
+	return m_apIni->SetValue(SECTION_CL, KEY_JD, szValue);
 }
 
 CTestIni::CTestIni(LPCTSTR szIniPath, LPCTSTR szAppdataDirName)
+	:m_apIni(std::make_shared<Phd::PhdIni>())
 {
-	m_ini.SetIniPath(szIniPath, szAppdataDirName);
+	m_apIni->SetIniPath(szIniPath, szAppdataDirName);
 }

@@ -226,10 +226,10 @@ void PhdSocket::Ntop(const sockaddr_in& sa, std::string& strIP) const
 wchar_t* PhdSocket::CToW(char* str) const
 {
 	//计算char *数组大小，以字节为单位，一个汉字占两个字节
-	std::size_t charLen = std::strlen(str);
+	int charLen = std::strlen(str);
 
 	//计算多字节字符的大小，按字符计算。
-	std::size_t len = MultiByteToWideChar(CP_ACP, 0, str, charLen, NULL, 0);
+	int len = MultiByteToWideChar(CP_ACP, 0, str, charLen, NULL, 0);
 
 	//为宽字节字符数组申请空间，数组大小为按字节计算的多字节字符大小
 	wchar_t* buf = new wchar_t[len + 1];
@@ -261,10 +261,10 @@ std::wstring PhdSocket::CToW(const std::string& str) const
 char* PhdSocket::WToC(wchar_t* str) const
 {
 	//计算wchar_t *数组大小，以字节为单位，一个汉字占两个字节
-	std::size_t wcharLen = std::wcslen(str);
+	int wcharLen = std::wcslen(str);
 
 	//获取宽字节字符的大小，大小是按字节计算的
-	std::size_t len = WideCharToMultiByte(CP_ACP, 0, str, wcharLen, NULL, 0, NULL, NULL);
+	int len = WideCharToMultiByte(CP_ACP, 0, str, wcharLen, NULL, 0, NULL, NULL);
 
 	//为多字节字符数组申请空间，数组大小为按字节计算的宽字节字节大小
 	char* buf = new char[len + 1]; //以字节为单位

@@ -1,5 +1,4 @@
 #pragma once
-#include "PhdIni.h"
 
 /***********************************************
    >   Class Name: CTestIni
@@ -9,6 +8,10 @@
    >         Blog: https://blog.csdn.net/phd17621680432
    >           QQ: 841382590
 **********************************************/
+namespace Phd{
+class PhdIni;
+}
+
 class CTestIni
 {
 public:
@@ -23,7 +26,7 @@ private:
 	CTestIni(LPCTSTR szIniPath, LPCTSTR szAppdataDirName);
 
 private:
-	Phd::PhdIni m_ini;
+	 std::shared_ptr<Phd::PhdIni> m_apIni;
 };
 
 #define g_IniTest CTestIni::GetInstance()
