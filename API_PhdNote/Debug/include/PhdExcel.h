@@ -10,6 +10,7 @@
 
 #include <comdef.h>
 
+
  //LPDISPATCH 是一个指向接口的指针
  //_variant_t() 将字符串转为const VARIANT&
  //COleVariant() 将short或long型转为const VARIANT&
@@ -50,7 +51,7 @@ public:
 
 	//打开指定页
 	bool OpenSheet(LPCTSTR szSheetName);
-	bool OpenSheet(int nSheetIndex);
+	bool OpenSheet(int nSheetIndex);//(有问题)
 	//得到页的数量
 	int GetSheetCount();
 	//通过页的索引得到页的名称
@@ -172,11 +173,17 @@ private:
 private:
 	std::shared_ptr<_ExApplication> m_apApp;		//整个excel应用程序
 	std::shared_ptr<Workbooks> m_apBooks;			//excel应用程序中当前打开的所有workbook集合
-
 	std::shared_ptr<_Workbook> m_apBook;			//一个工作簿
 	std::shared_ptr<_ExSheets>  m_apSheets;		//指定或活动工作中簿中所有工作表的集合
 	std::shared_ptr<_Worksheet> m_apSheet;			//一个工作表
 	std::shared_ptr<_ExRange>  m_apRange;			//某一单元格、某一行、某一列、某一选定区域（该对象代表当前页的所有单元格）
+
+// 	_ExApplication m_app;
+// 	Workbooks m_books;
+// 	_Workbook m_book;
+// 	_ExSheets m_sheets;
+// 	_Worksheet m_sheet;
+// 	_ExRange m_range;
 
 	//Interior  m_interior;		//代表一个对象的内部	
 	//_ExFont m_font;			//包含对象的字体属性（字体名称、字号、颜色等）
